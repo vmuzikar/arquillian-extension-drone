@@ -31,8 +31,11 @@ import org.jboss.arquillian.drone.webdriver.spi.BrowserCapabilities;
 public class AppiumExtension implements LoadableExtension {
     public void register(ExtensionBuilder extensionBuilder) {
         extensionBuilder.service(BrowserCapabilities.class, AppiumCapabilities.class);
+
         extensionBuilder.service(Configurator.class, AppiumDriverFactory.class);
         extensionBuilder.service(Instantiator.class, AppiumDriverFactory.class);
         extensionBuilder.service(Destructor.class, AppiumDriverFactory.class);
+
+        extensionBuilder.observer(DefaultValuesModifier.class);
     }
 }
