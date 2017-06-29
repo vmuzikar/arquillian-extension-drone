@@ -66,7 +66,7 @@ public class AppiumDriverFactory implements
     public AppiumDriver createInstance(WebDriverConfiguration configuration) {
         Capabilities capabilities = configuration.getCapabilities();
 
-        String platform = (String)capabilities.getCapability(MobileCapabilityType.PLATFORM_NAME);
+        String platform = ((String)capabilities.getCapability(MobileCapabilityType.PLATFORM_NAME)).toLowerCase();
         String remoteAddr = (String)capabilities.getCapability(REMOTE_ADDRESS);
 
         if (StringUtils.isBlank(platform)) {
@@ -75,12 +75,10 @@ public class AppiumDriverFactory implements
 
         Class<? extends AppiumDriver> driverClazz;
 
-        switch (platform) {
-            case MobilePlatform.ANDROID: driverClazz = AndroidDriver.class;
-            case MobilePlatform.IOS: driverClazz = IOSDriver.class;
-            case MobilePlatform.WINDOWS: driverClazz = WindowsDriver.class;
-            default: driverClazz = AppiumDriver.class;
-        }
+             if (MobilePlatform.ANDROID.toLowerCase().equals(platform)) driverClazz = AndroidDriver.class;
+        else if (MobilePlatform.IOS.toLowerCase().equals(platform))     driverClazz = IOSDriver.class;
+        else if (MobilePlatform.WINDOWS.toLowerCase().equals(platform)) driverClazz = WindowsDriver.class;
+        else                                                            driverClazz = AppiumDriver.class;
 
         AppiumDriver driver;
 
