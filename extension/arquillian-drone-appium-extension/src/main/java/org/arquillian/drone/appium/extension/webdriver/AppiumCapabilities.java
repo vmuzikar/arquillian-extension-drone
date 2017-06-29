@@ -28,7 +28,6 @@ import java.util.Map;
  */
 public class AppiumCapabilities implements BrowserCapabilities {
     public static final String READABLE_NAME = "appium";
-    public static final String REMOTE_ADDRESS = "remoteAddress";
 
     @Override
     public String getImplementationClassName() {

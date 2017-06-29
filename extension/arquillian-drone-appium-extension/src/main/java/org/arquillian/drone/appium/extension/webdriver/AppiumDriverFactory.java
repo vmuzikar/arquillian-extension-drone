@@ -39,7 +39,6 @@ import org.openqa.selenium.Capabilities;
 import java.net.URL;
 
 import static org.arquillian.drone.appium.extension.webdriver.AppiumCapabilities.READABLE_NAME;
-import static org.arquillian.drone.appium.extension.webdriver.AppiumCapabilities.REMOTE_ADDRESS;
 
 /**
  * @author Vaclav Muzikar <vmuzikar@redhat.com>
@@ -67,7 +66,7 @@ public class AppiumDriverFactory implements
         Capabilities capabilities = configuration.getCapabilities();
 
         String platform = ((String)capabilities.getCapability(MobileCapabilityType.PLATFORM_NAME)).toLowerCase();
-        String remoteAddr = (String)capabilities.getCapability(REMOTE_ADDRESS);
+        URL remoteAddr = configuration.getRemoteAddress();
 
         if (StringUtils.isBlank(platform)) {
             throw new IllegalArgumentException("You have to specify " + MobileCapabilityType.PLATFORM_NAME);
@@ -83,7 +82,7 @@ public class AppiumDriverFactory implements
         AppiumDriver driver;
 
         try {
-            if (StringUtils.isBlank(remoteAddr)) {
+            if (remoteAddr == null) {
                 driver = driverClazz.getConstructor(Capabilities.class).newInstance(capabilities);
             }
             else {
