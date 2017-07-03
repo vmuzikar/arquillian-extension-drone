@@ -64,16 +64,26 @@
       <version>${version.mockito}</version>
     </dependency>
     <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-container</artifactId>
+      <groupId>org.jboss.arquillian.core</groupId>
+      <artifactId>arquillian-core-impl-base</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.arquillian.extension</groupId>
-      <artifactId>arquillian-drone-bom</artifactId>
-      <version>${project.version}</version>
-      <type>pom</type>
+      <groupId>org.jboss.arquillian.test</groupId>
+      <artifactId>arquillian-test-impl-base</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.test</groupId>
+      <artifactId>arquillian-test-impl-base</artifactId>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.core</groupId>
+      <artifactId>arquillian-core-impl-base</artifactId>
+      <scope>test</scope>
+      <classifier>tests</classifier>
     </dependency>
   </dependencies>
 
