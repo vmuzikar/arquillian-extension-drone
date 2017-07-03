@@ -20,6 +20,8 @@ package org.arquillian.drone.appium.extension.webdriver;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.remote.AndroidMobileCapabilityType;
+import io.appium.java_client.remote.MobileBrowserType;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.appium.java_client.remote.MobilePlatform;
 import io.appium.java_client.windows.WindowsDriver;
@@ -32,9 +34,13 @@ import org.jboss.arquillian.drone.spi.Destructor;
 import org.jboss.arquillian.drone.spi.DronePoint;
 import org.jboss.arquillian.drone.spi.Instantiator;
 import org.jboss.arquillian.drone.webdriver.configuration.WebDriverConfiguration;
+import org.jboss.arquillian.drone.webdriver.factory.CapabilitiesOptionsMapper;
+import org.jboss.arquillian.drone.webdriver.factory.ChromeDriverFactory;
 import org.jboss.arquillian.drone.webdriver.spi.BrowserCapabilities;
 import org.jboss.arquillian.drone.webdriver.spi.BrowserCapabilitiesRegistry;
 import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.net.URL;
 
@@ -63,13 +69,23 @@ public class AppiumDriverFactory implements
 
     @Override
     public AppiumDriver createInstance(WebDriverConfiguration configuration) {
-        Capabilities capabilities = configuration.getCapabilities();
+        DesiredCapabilities capabilities = new DesiredCapabilities(configuration.getCapabilities());
 
         String platform = ((String)capabilities.getCapability(MobileCapabilityType.PLATFORM_NAME)).toLowerCase();
         URL remoteAddr = configuration.getRemoteAddress();
 
         if (StringUtils.isBlank(platform)) {
             throw new IllegalArgumentException("You have to specify " + MobileCapabilityType.PLATFORM_NAME);
+        }
+
+        String browser = (String)capabilities.getCapability(MobileCapabilityType.BROWSER_NAME);
+        if (browser != null) browser = browser.toLowerCase();
+
+        // Set chromeOptions
+        if (MobileBrowserType.CHROME.toLowerCase().equals(browser)) {
+            ChromeOptions chromeOptions = new ChromeOptions();
+            CapabilitiesOptionsMapper.mapCapabilities(chromeOptions, capabilities, ChromeDriverFactory.BROWSER_CAPABILITIES);
+            capabilities.setCapability(AndroidMobileCapabilityType.CHROME_OPTIONS, chromeOptions);
         }
 
         Class<? extends AppiumDriver> driverClazz;
