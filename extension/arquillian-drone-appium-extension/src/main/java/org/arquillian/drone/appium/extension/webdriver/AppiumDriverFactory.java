@@ -47,6 +47,14 @@ import java.net.URL;
 import static org.arquillian.drone.appium.extension.webdriver.AppiumCapabilities.READABLE_NAME;
 
 /**
+ * Factory which combines {@link org.jboss.arquillian.drone.spi.Configurator},
+ * {@link org.jboss.arquillian.drone.spi.Instantiator} and {@link org.jboss.arquillian.drone.spi.Destructor} for
+ * Appium Java Client.
+ *
+ * @see <a href="https://github.com/appium/java-client">https://github.com/appium/java-client</a>
+ * @see <a href="https://github.com/appium/appium/blob/master/docs/en/writing-running-appium/caps.md">https://github.com/appium/appium/blob/master/docs/en/writing-running-appium/caps.md</a>
+ *  for supported capabilities
+ *
  * @author Vaclav Muzikar <vmuzikar@redhat.com>
  */
 public class AppiumDriverFactory implements
@@ -67,16 +75,51 @@ public class AppiumDriverFactory implements
         return 0;
     }
 
+    /**
+     * Creates {@link AndroidDriver}, {@link IOSDriver}, {@link WindowsDriver} or generic {@link AppiumDriver}
+     * based on {@value MobileCapabilityType#PLATFORM_NAME} in Arquillian descriptor.
+     *
+     * @param configuration
+     *     the configuration object for the extension
+     *
+     * @return The Appium WebDriver
+     */
     @Override
     public AppiumDriver createInstance(WebDriverConfiguration configuration) {
-        DesiredCapabilities capabilities = new DesiredCapabilities(configuration.getCapabilities());
+        Capabilities capabilities = getCapabilities(configuration);
 
-        String platform = ((String)capabilities.getCapability(MobileCapabilityType.PLATFORM_NAME)).toLowerCase();
-        URL remoteAddr = configuration.getRemoteAddress();
-
+        String platform = (String)capabilities.getCapability(MobileCapabilityType.PLATFORM_NAME);
         if (StringUtils.isBlank(platform)) {
             throw new IllegalArgumentException("You have to specify " + MobileCapabilityType.PLATFORM_NAME);
         }
+        platform = platform.toLowerCase();
+
+        Class<? extends AppiumDriver> driverClass;
+             if (MobilePlatform.ANDROID.toLowerCase().equals(platform)) driverClass = AndroidDriver.class;
+        else if (MobilePlatform.IOS.toLowerCase().equals(platform))     driverClass = IOSDriver.class;
+        else if (MobilePlatform.WINDOWS.toLowerCase().equals(platform)) driverClass = WindowsDriver.class;
+        else                                                            driverClass = AppiumDriver.class;
+
+        URL remoteAddress = configuration.getRemoteAddress();
+        try {
+            if (remoteAddress == null)
+                return driverClass.getConstructor(Capabilities.class).newInstance(capabilities);
+            else
+                return driverClass.getConstructor(URL.class, Capabilities.class).newInstance(remoteAddress, capabilities);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Creates {@link Capabilities} instance with Chrome options set in case of Android and Chrome browser
+     *
+     * @param configuration
+     * @return {@link Capabilities} instance
+     */
+    public Capabilities getCapabilities(WebDriverConfiguration configuration) {
+        DesiredCapabilities capabilities = new DesiredCapabilities(configuration.getCapabilities());
 
         String browser = (String)capabilities.getCapability(MobileCapabilityType.BROWSER_NAME);
         if (browser != null) browser = browser.toLowerCase();
@@ -88,28 +131,7 @@ public class AppiumDriverFactory implements
             capabilities.setCapability(AndroidMobileCapabilityType.CHROME_OPTIONS, chromeOptions);
         }
 
-        Class<? extends AppiumDriver> driverClazz;
-
-             if (MobilePlatform.ANDROID.toLowerCase().equals(platform)) driverClazz = AndroidDriver.class;
-        else if (MobilePlatform.IOS.toLowerCase().equals(platform))     driverClazz = IOSDriver.class;
-        else if (MobilePlatform.WINDOWS.toLowerCase().equals(platform)) driverClazz = WindowsDriver.class;
-        else                                                            driverClazz = AppiumDriver.class;
-
-        AppiumDriver driver;
-
-        try {
-            if (remoteAddr == null) {
-                driver = driverClazz.getConstructor(Capabilities.class).newInstance(capabilities);
-            }
-            else {
-                driver = driverClazz.getConstructor(URL.class, Capabilities.class).newInstance(remoteAddr, capabilities);
-            }
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return driver;
+        return capabilities;
     }
 
     @Override

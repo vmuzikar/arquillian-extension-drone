@@ -26,15 +26,23 @@ import org.jboss.arquillian.drone.spi.DroneContext;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 
 /**
+ * Modifies default WebDriver/Drone properties
+ *
  * @author Vaclav Muzikar <vmuzikar@redhat.com>
  */
 public class DefaultValuesModifier {
+    public static final int DEFAULT_INSTANTIATION_TIMEOUT = 240;
+
     @Inject
     private Instance<DroneContext> droneContext;
 
     @Inject
     private Instance<ArquillianDescriptor> arquillianDescriptor;
 
+    /**
+     * Sets the default instantiationTimeoutInSeconds Drone property
+     * @param event
+     */
     public void modifyDefaultTimeout(@Observes(precedence = -100) BeforeSuite event) {
         if (arquillianDescriptor.get()
             .extension("drone")
@@ -43,6 +51,6 @@ public class DefaultValuesModifier {
 
         GlobalDroneConfiguration globalDroneConfiguration =
             droneContext.get().getGlobalDroneConfiguration(GlobalDroneConfiguration.class);
-        globalDroneConfiguration.setInstantiationTimeoutInSeconds(240);
+        globalDroneConfiguration.setInstantiationTimeoutInSeconds(DEFAULT_INSTANTIATION_TIMEOUT);
     }
 }
