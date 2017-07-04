@@ -36,7 +36,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 
 /**
- * @see {@link org.jboss.arquillian.drone.impl.GlobalDroneConfigurationTestCase}
+ * @see org.jboss.arquillian.drone.impl.GlobalDroneConfigurationTestCase
  * @author Vaclav Muzikar <vmuzikar@redhat.com>
  */
 @RunWith(MockitoJUnitRunner.class)
