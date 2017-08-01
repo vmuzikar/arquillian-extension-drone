@@ -28,6 +28,7 @@ import org.jboss.arquillian.drone.webdriver.utils.StringUtils;
 import org.jboss.arquillian.drone.webdriver.utils.Validate;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -150,7 +151,11 @@ public class FirefoxDriverFactory extends AbstractWebDriverFactory<FirefoxDriver
             }
         }
 
-        return capabilities;
+        FirefoxOptions firefoxOptions = new FirefoxOptions();
+        CapabilitiesOptionsMapper.mapCapabilities(firefoxOptions, capabilities, BROWSER_CAPABILITIES);
+        firefoxOptions.addCapabilities(capabilities);
+
+        return firefoxOptions.toCapabilities();
     }
 
     @Override
